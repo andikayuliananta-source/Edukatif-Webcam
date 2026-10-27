@@ -1,0 +1,6 @@
+{
+  "name": "GerakPintar - Kuis Benar Salah Deteksi Webcam",
+  "description": "Game edukasi interaktif Benar atau Salah dengan deteksi gerakan webcam real-time (kiri untuk Salah, kanan untuk Benar), sistem skor dinamis, leaderboard, profil pemain, impor CSV admin, dan dashboard analitik.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
