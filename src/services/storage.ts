@@ -4,7 +4,8 @@ import {
   PlayerProfile,
   LeaderboardEntry,
   GameSessionResult,
-  CategoryStat
+  CategoryStat,
+  DuelSessionResult
 } from '../types';
 
 const STORAGE_KEYS = {
@@ -457,6 +458,76 @@ export const StorageService = {
       maxStreak: session.maxStreak,
       date: dateStr
     });
+  },
+
+  recordDuelSession(duel: DuelSessionResult): void {
+    const dateStr = new Date(duel.timestamp).toISOString().split('T')[0];
+
+    // Add Player 1 to leaderboard if played
+    if (duel.player1.totalAnswers > 0) {
+      const p1Acc = Math.round((duel.player1.correctCount / duel.player1.totalAnswers) * 100);
+      this.addLeaderboardEntry({
+        playerName: `${duel.player1.name} (Duel)`,
+        playerAvatar: duel.player1.avatar,
+        score: duel.player1.score,
+        accuracy: p1Acc,
+        difficulty: duel.difficulty,
+        maxStreak: duel.player1.maxStreak,
+        date: dateStr
+      });
+    }
+
+    // Add Player 2 to leaderboard if played
+    if (duel.player2.totalAnswers > 0) {
+      const p2Acc = Math.round((duel.player2.correctCount / duel.player2.totalAnswers) * 100);
+      this.addLeaderboardEntry({
+        playerName: `${duel.player2.name} (Duel)`,
+        playerAvatar: duel.player2.avatar,
+        score: duel.player2.score,
+        accuracy: p2Acc,
+        difficulty: duel.difficulty,
+        maxStreak: duel.player2.maxStreak,
+        date: dateStr
+      });
+    }
+
+    // Also record both sets of answers to match history for analytics
+    const history = this.getMatchHistory();
+    if (duel.player1.answers.length > 0) {
+      const p1Acc = (duel.player1.correctCount / duel.player1.totalAnswers) * 100;
+      history.unshift({
+        id: `duel_p1_${duel.id}`,
+        playerId: duel.player1.id,
+        playerName: `${duel.player1.name} [Duel]`,
+        score: duel.player1.score,
+        maxStreak: duel.player1.maxStreak,
+        totalQuestions: duel.player1.totalAnswers,
+        correctCount: duel.player1.correctCount,
+        accuracy: p1Acc,
+        difficulty: duel.difficulty,
+        timestamp: duel.timestamp,
+        answers: duel.player1.answers
+      });
+    }
+
+    if (duel.player2.answers.length > 0) {
+      const p2Acc = (duel.player2.correctCount / duel.player2.totalAnswers) * 100;
+      history.unshift({
+        id: `duel_p2_${duel.id}`,
+        playerId: duel.player2.id,
+        playerName: `${duel.player2.name} [Duel]`,
+        score: duel.player2.score,
+        maxStreak: duel.player2.maxStreak,
+        totalQuestions: duel.player2.totalAnswers,
+        correctCount: duel.player2.correctCount,
+        accuracy: p2Acc,
+        difficulty: duel.difficulty,
+        timestamp: duel.timestamp,
+        answers: duel.player2.answers
+      });
+    }
+
+    localStorage.setItem(STORAGE_KEYS.MATCH_HISTORY, JSON.stringify(history.slice(0, 150)));
   },
 
   // Calculate detailed analytics for dashboard

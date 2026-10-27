@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Trophy, Medal, Search, Flame, Target, Play } from 'lucide-react';
+import { Trophy, Medal, Search, Flame, Target, Play, Swords, User } from 'lucide-react';
 import { LeaderboardEntry, DifficultyLevel } from '../types';
 import { StorageService } from '../services/storage';
 
@@ -9,6 +9,7 @@ interface LeaderboardViewProps {
 
 export const LeaderboardView = ({ onPlayNow }: LeaderboardViewProps) => {
   const [filterDifficulty, setFilterDifficulty] = useState<DifficultyLevel | 'all'>('all');
+  const [filterMode, setFilterMode] = useState<'all' | 'solo' | 'duel'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
   const leaderboardData: LeaderboardEntry[] = useMemo(() => {
@@ -18,13 +19,26 @@ export const LeaderboardView = ({ onPlayNow }: LeaderboardViewProps) => {
   const filteredData = useMemo(() => {
     return leaderboardData.filter((entry) => {
       const matchDiff = filterDifficulty === 'all' || entry.difficulty === filterDifficulty;
+      const isDuel = entry.playerName.toLowerCase().includes('(duel)');
+      const matchMode =
+        filterMode === 'all'
+          ? true
+          : filterMode === 'duel'
+          ? isDuel
+          : !isDuel;
       const matchSearch = entry.playerName.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchDiff && matchSearch;
+      return matchDiff && matchMode && matchSearch;
     });
-  }, [leaderboardData, filterDifficulty, searchQuery]);
+  }, [leaderboardData, filterDifficulty, filterMode, searchQuery]);
 
   const topThree = filteredData.slice(0, 3);
-  const remaining = filteredData.slice(3);
+
+  // Helper to format name and duel tag
+  const formatPlayerName = (rawName: string) => {
+    const isDuel = rawName.includes('(Duel)');
+    const cleanName = rawName.replace('(Duel)', '').trim();
+    return { cleanName, isDuel };
+  };
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
@@ -51,8 +65,60 @@ export const LeaderboardView = ({ onPlayNow }: LeaderboardViewProps) => {
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-900 border border-slate-800 p-3 rounded-2xl">
-        <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto">
+      <div className="space-y-3 bg-slate-900 border border-slate-800 p-4 rounded-3xl">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          {/* Mode Tabs */}
+          <div className="flex items-center gap-1.5 p-1 bg-slate-800 rounded-xl">
+            <button
+              onClick={() => setFilterMode('all')}
+              className={`px-3 py-1 rounded-lg text-xs font-bold transition ${
+                filterMode === 'all'
+                  ? 'bg-slate-700 text-white shadow'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Semua Mode
+            </button>
+            <button
+              onClick={() => setFilterMode('solo')}
+              className={`px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 ${
+                filterMode === 'solo'
+                  ? 'bg-emerald-600 text-white shadow'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <User className="w-3 h-3" />
+              Solo
+            </button>
+            <button
+              onClick={() => setFilterMode('duel')}
+              className={`px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 ${
+                filterMode === 'duel'
+                  ? 'bg-indigo-600 text-white shadow'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Swords className="w-3 h-3 text-cyan-300" />
+              Duel 2P
+            </button>
+          </div>
+
+          {/* Search box */}
+          <div className="relative w-full sm:w-64">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder="Cari nama pemain..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-slate-800/80 border border-slate-700/80 rounded-xl pl-9 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500"
+            />
+          </div>
+        </div>
+
+        {/* Difficulty pills */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pt-1 border-t border-slate-800">
+          <span className="text-[11px] text-slate-500 font-bold uppercase mr-1">Tingkat:</span>
           {[
             { id: 'all', label: 'Semua' },
             { id: 'mudah', label: 'Mudah' },
@@ -62,26 +128,15 @@ export const LeaderboardView = ({ onPlayNow }: LeaderboardViewProps) => {
             <button
               key={item.id}
               onClick={() => setFilterDifficulty(item.id as DifficultyLevel | 'all')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${
+              className={`px-3 py-1 rounded-lg text-xs font-bold transition ${
                 filterDifficulty === item.id
                   ? 'bg-emerald-600 text-white shadow'
-                  : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-750'
+                  : 'bg-slate-800/60 text-slate-400 hover:text-white hover:bg-slate-800'
               }`}
             >
               {item.label}
             </button>
           ))}
-        </div>
-
-        <div className="relative w-full sm:w-64">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            placeholder="Cari nama pemain..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-slate-800/80 border border-slate-700/80 rounded-xl pl-9 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500"
-          />
         </div>
       </div>
 
@@ -96,8 +151,11 @@ export const LeaderboardView = ({ onPlayNow }: LeaderboardViewProps) => {
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-300 text-slate-900 font-black text-[11px] px-2.5 py-0.5 rounded-full shadow flex items-center gap-1">
               <Medal className="w-3 h-3" /> #2 Perak
             </div>
-            <div className="font-extrabold text-white text-sm sm:text-base mt-3 truncate">
-              {topThree[1].playerName}
+            <div className="font-extrabold text-white text-sm sm:text-base mt-3 truncate flex items-center justify-center gap-1">
+              <span>{formatPlayerName(topThree[1].playerName).cleanName}</span>
+              {formatPlayerName(topThree[1].playerName).isDuel && (
+                <span className="text-[10px] px-1.5 py-0.2 rounded bg-indigo-500/30 text-indigo-300 font-bold">⚔️</span>
+              )}
             </div>
             <div className="text-xl sm:text-2xl font-black text-slate-200 mt-1">
               {topThree[1].score.toLocaleString()}
@@ -115,8 +173,11 @@ export const LeaderboardView = ({ onPlayNow }: LeaderboardViewProps) => {
             <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-amber-400 text-slate-950 font-black text-xs px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
               <Trophy className="w-3.5 h-3.5" /> #1 Emas
             </div>
-            <div className="font-black text-white text-base sm:text-lg mt-3 truncate">
-              {topThree[0].playerName}
+            <div className="font-black text-white text-base sm:text-lg mt-3 truncate flex items-center justify-center gap-1">
+              <span>{formatPlayerName(topThree[0].playerName).cleanName}</span>
+              {formatPlayerName(topThree[0].playerName).isDuel && (
+                <span className="text-[10px] px-1.5 py-0.2 rounded bg-indigo-500/30 text-indigo-300 font-bold">⚔️</span>
+              )}
             </div>
             <div className="text-2xl sm:text-3xl font-black text-amber-400 mt-1">
               {topThree[0].score.toLocaleString()}
@@ -134,8 +195,11 @@ export const LeaderboardView = ({ onPlayNow }: LeaderboardViewProps) => {
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-700 text-amber-100 font-black text-[11px] px-2.5 py-0.5 rounded-full shadow flex items-center gap-1">
               <Medal className="w-3 h-3" /> #3 Perunggu
             </div>
-            <div className="font-extrabold text-white text-sm sm:text-base mt-3 truncate">
-              {topThree[2].playerName}
+            <div className="font-extrabold text-white text-sm sm:text-base mt-3 truncate flex items-center justify-center gap-1">
+              <span>{formatPlayerName(topThree[2].playerName).cleanName}</span>
+              {formatPlayerName(topThree[2].playerName).isDuel && (
+                <span className="text-[10px] px-1.5 py-0.2 rounded bg-indigo-500/30 text-indigo-300 font-bold">⚔️</span>
+              )}
             </div>
             <div className="text-xl sm:text-2xl font-black text-amber-600 mt-1">
               {topThree[2].score.toLocaleString()}
@@ -155,6 +219,7 @@ export const LeaderboardView = ({ onPlayNow }: LeaderboardViewProps) => {
               <tr>
                 <th className="py-3 px-4 text-center w-16">Peringkat</th>
                 <th className="py-3 px-4">Pemain</th>
+                <th className="py-3 px-4 text-center">Mode</th>
                 <th className="py-3 px-4">Tingkat</th>
                 <th className="py-3 px-4 text-center">Akurasi</th>
                 <th className="py-3 px-4 text-center">Max Combo</th>
@@ -165,13 +230,15 @@ export const LeaderboardView = ({ onPlayNow }: LeaderboardViewProps) => {
             <tbody className="divide-y divide-slate-800/60">
               {filteredData.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-8 text-center text-slate-500 text-xs">
+                  <td colSpan={8} className="py-8 text-center text-slate-500 text-xs">
                     Belum ada data skor yang cocok dengan filter.
                   </td>
                 </tr>
               ) : (
                 filteredData.map((entry, index) => {
                   const rank = index + 1;
+                  const { cleanName, isDuel } = formatPlayerName(entry.playerName);
+
                   return (
                     <tr
                       key={entry.id}
@@ -194,9 +261,21 @@ export const LeaderboardView = ({ onPlayNow }: LeaderboardViewProps) => {
                             {entry.playerAvatar || '👤'}
                           </span>
                           <span className="font-bold text-white group-hover:text-emerald-400 transition-colors">
-                            {entry.playerName}
+                            {cleanName}
                           </span>
                         </div>
+                      </td>
+                      <td className="py-3.5 px-4 text-center">
+                        {isDuel ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-[10px] font-bold">
+                            <Swords className="w-3 h-3 text-cyan-400" />
+                            Duel
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-semibold">
+                            Solo
+                          </span>
+                        )}
                       </td>
                       <td className="py-3.5 px-4">
                         <span className="capitalize text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-800 border border-slate-700 text-slate-300">

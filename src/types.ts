@@ -85,3 +85,28 @@ export interface MotionDetectionState {
   centroidX: number; // 0 to 1
   centroidY: number; // 0 to 1
 }
+
+export type GameMode = 'solo' | 'duel';
+
+export interface DuelPlayerState {
+  id: string;
+  name: string;
+  avatar: string;
+  score: number;
+  streak: number;
+  maxStreak: number;
+  correctCount: number;
+  totalAnswers: number;
+  answers: PlayerAnswerRecord[];
+}
+
+export interface DuelSessionResult {
+  id: string;
+  player1: DuelPlayerState;
+  player2: DuelPlayerState;
+  winnerId: string | 'draw';
+  difficulty: DifficultyLevel;
+  timestamp: number;
+  totalRounds: number;
+}
+

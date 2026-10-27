@@ -42,17 +42,23 @@ Metode pembelajaran kinestetik ini dirancang untuk meningkatkan fokus, aktivitas
 - Bebas ketergantungan file audio eksternal (100% menggunakan osilator frekuensi Web Audio API native tanpa latency).
 - Dilengkapi efek suara metronom hitung mundur darurat dan kontrol bisu (*Mute / Unmute*) di bilah navigasi.
 
-### 4. 🎚️ Pilihan Tingkat Kesulitan
+### 4. ⚔️ Mode Duel (2 Pemain Bergantian Head-to-Head)
+- **Kompetisi 2 Pemain 1 Kamera**: Dua pemain dapat berlaga secara bergiliran dalam satu sesi webcam yang sama.
+- **Transisi Pergantian Pemain**: Layar transisi hitung mundur 3 detik memberikan waktu bagi pemain untuk bertukar posisi di depan kamera webcam.
+- **Dual HUD Scoreboard**: Pemantauan skor, kombo streak, dan indikator giliran aktif secara real-time di bagian atas layar.
+- **Podium Juara Duel**: Penobatan juara dengan mahkota emas 👑, komparasi statistik *head-to-head*, serta pencatatan skor kedua pemain ke papan peringkat lokal.
+
+### 5. 🎚️ Pilihan Tingkat Kesulitan
 | Tingkat | Waktu per Soal | Pengali Poin | Ambang Tahan Zona |
 | :--- | :--- | :--- | :--- |
 | **Mudah** | 14 detik | 1.0x | Relaks (santai) |
 | **Sedang** | 10 detik | 1.5x | Standar |
 | **Sulit** | 6 detik | 2.0x | Cepat & Refleks Kilat |
 
-### 5. 🏆 Papan Peringkat Juara (Leaderboard)
+### 6. 🏆 Papan Peringkat Juara (Leaderboard)
 - Podium 3 Besar dengan lencana Emas (#1), Perak (#2), dan Perunggu (#3).
-- Filter berdasarkan tingkat kesulitan (*Semua, Mudah, Sedang, Sulit*) dan kotak pencarian nama pemain.
-- Menampilkan metrik: Nama, Skor Tertinggi, Persentase Akurasi, dan Max Combo Streak.
+- Filter berdasarkan Mode Permainan (*Semua Mode, Solo, Duel 2P*) dan tingkat kesulitan (*Semua, Mudah, Sedang, Sulit*).
+- Pencarian nama pemain dan badge khusus untuk hasil laga Duel.
 
 ### 6. 👤 Profil Pemain & Riwayat Statistik
 - Kustomisasi nama pemain dan pemilihan emoji avatar interaktif.
