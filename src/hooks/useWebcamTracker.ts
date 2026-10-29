@@ -38,6 +38,12 @@ export function useWebcamTracker({
     centroidY: 0.5
   });
 
+  // Keep latest onConfirmAnswer in a ref to avoid recreating the processing loop
+  const onConfirmAnswerRef = useRef(onConfirmAnswer);
+  useEffect(() => {
+    onConfirmAnswerRef.current = onConfirmAnswer;
+  }, [onConfirmAnswer]);
+
   // Tracking frames: Previous frame (motion) and Adaptive Background frame (presence)
   const prevFrameData = useRef<Uint8ClampedArray | null>(null);
   const bgFrameData = useRef<Float32Array | null>(null);
@@ -362,8 +368,8 @@ export function useWebcamTracker({
             if (zoneHoldProgress.current >= 1 && !hasTriggeredRef.current) {
               hasTriggeredRef.current = true;
               const chosenAnswer = detectedZone === 'right'; // right = BENAR (true), left = SALAH (false)
-              if (onConfirmAnswer) {
-                onConfirmAnswer(chosenAnswer);
+              if (onConfirmAnswerRef.current) {
+                onConfirmAnswerRef.current(chosenAnswer);
               }
             }
           } else {
@@ -407,7 +413,7 @@ export function useWebcamTracker({
         cancelAnimationFrame(animFrameId.current);
       }
     };
-  }, [enabled, isCameraActive, getThresholds, onConfirmAnswer]);
+  }, [enabled, isCameraActive, getThresholds]);
 
   // Clean up stream on unmount
   useEffect(() => {

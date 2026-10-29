@@ -1,1 +1,45 @@
 @import "tailwindcss";
+
+/* Fullscreen Webcam & Dynamic Question Overlay Styles */
+.question-overlay-card {
+  position: absolute;
+  top: 3.5%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  background-color: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 16px 24px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  max-width: 90%;
+  width: min(840px, 92vw);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.65), 0 0 20px rgba(16, 185, 129, 0.12);
+  transition: all 0.25s ease;
+}
+
+@media (min-width: 640px) {
+  .question-overlay-card {
+    padding: 20px 30px;
+    top: 4%;
+  }
+}
+
+.question-text-dynamic {
+  font-size: clamp(1rem, 2.5vw, 1.45rem);
+  line-height: 1.45;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  text-align: center;
+  color: #ffffff;
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.85);
+  font-weight: 700;
+}
+
+.fullscreen-webcam-canvas {
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+}
